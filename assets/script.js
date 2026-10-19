@@ -8,14 +8,36 @@ function loadComponent(elementId, filePath, callback) {
             return response.text();
         })
         .then(data => {
-            document.getElementById(elementId).innerHTML = data;
+            const targetEl = document.getElementById(elementId);
+            if (targetEl) {
+                targetEl.innerHTML = data;
+            }
             
             // Jika ada fungsi tambahan (seperti inisialisasi menu), jalankan di sini
             if (callback) {
                 callback();
             }
         })
-        .catch(error => console.error(`Gagal memuat ${filePath}:`, error));
+        .catch(error => {
+            // Fallback jika absolute path gagal (misal dijalankan di sub-folder lokal)
+            if (filePath.startsWith('/') && !filePath.startsWith('//')) {
+                fetch('..' + filePath)
+                    .then(r => {
+                        if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                        return r.text();
+                    })
+                    .then(data => {
+                        const targetEl = document.getElementById(elementId);
+                        if (targetEl) {
+                            targetEl.innerHTML = data;
+                        }
+                        if (callback) callback();
+                    })
+                    .catch(err => console.error(`Gagal memuat ${filePath}:`, error));
+            } else {
+                console.error(`Gagal memuat ${filePath}:`, error);
+            }
+        });
 }
 
 // Fungsi untuk mengaktifkan tombol menu mobile

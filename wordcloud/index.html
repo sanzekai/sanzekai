@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanzekai | Describe Me</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Supabase JS Client v2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- WordCloud2.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.2/wordcloud2.min.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+        }
+        .glass-nav { 
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px);
+        }
+        #wordcloudCanvas {
+            image-rendering: auto;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white relative overflow-x-hidden">
+
+    <!-- Header Component Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <!-- Glowing Background Ambient Effects -->
+    <div class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600/10 w-[500px] h-[500px] rounded-full blur-3xl -z-10 pointer-events-none"></div>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-5xl mx-auto px-6 pt-32 pb-20 w-full relative z-10 flex flex-col items-center justify-center gap-8">
+        
+        <!-- Judul & Deskripsi -->
+        <div class="text-center flex flex-col items-center gap-2">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white lowercase">
+                describe <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">me</span>
+            </h1>
+            <p class="text-slate-400 text-xs sm:text-sm max-w-md">
+                tulis satu kata yang paling menggambarkan diriku
+            </p>
+            <a href="../" class="text-slate-500 hover:text-blue-400 transition-colors flex items-center gap-2 text-xs mt-1 w-fit">
+                <i class="fa-solid fa-arrow-left text-xs"></i> Back to home
+            </a>
+        </div>
+
+        <!-- Wordcloud Tanpa Box (Melayang di atas Background) -->
+        <div id="canvasContainer" class="relative w-full max-w-2xl h-[340px] sm:h-[400px] flex items-center justify-center">
+            <canvas id="wordcloudCanvas" class="w-full h-full block cursor-default"></canvas>
+
+            <!-- Tooltip -->
+            <div id="wordcloudTooltip" class="absolute pointer-events-none opacity-0 transition-opacity duration-150 z-30 px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-700/80 shadow-xl text-[11px] text-white"></div>
+
+            <!-- Loading State -->
+            <div id="loadingOverlay" class="absolute inset-0 flex items-center justify-center">
+                <div class="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyOverlay" class="hidden absolute inset-0 flex items-center justify-center text-xs text-slate-500">
+                belum ada kata...
+            </div>
+        </div>
+
+        <!-- Box Input Sederhana -->
+        <div class="w-full max-w-md">
+            <form id="wordForm" class="flex flex-col gap-3">
+                <div class="relative flex items-center">
+                    <input 
+                        type="text" 
+                        id="wordInput" 
+                        maxlength="25"
+                        autocomplete="off"
+                        placeholder="satu kata untuk ihsan..." 
+                        class="w-full bg-slate-900/80 border border-slate-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none transition-all pr-20 shadow-lg"
+                        required
+                    >
+                    <button 
+                        type="submit" 
+                        id="submitWordBtn" 
+                        class="absolute right-1.5 bg-blue-600 hover:bg-blue-500 text-white font-medium px-3.5 py-2 rounded-lg text-xs transition-all shadow-md cursor-pointer disabled:opacity-50"
+                    >
+                        kirim
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- Footer Component Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Script Navbar & Footer Component Loader -->
+    <script src="/assets/script.js" onerror="this.onerror=null;this.src='../assets/script.js'"></script>
+
+    <!-- Script Utama Wordcloud -->
+    <script>
+        const SUPABASE_URL = 'https://vkdutmpocrtlavulpniq.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_hGhSo8fc63mkrdmKv0Ldzw_PcKgUh5H';
+
+        const isConfigured = SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL !== 'YOUR_SUPABASE_URL';
+        let supabaseClient = null;
+
+        function getSupabaseClient() {
+            if (supabaseClient) return supabaseClient;
+            if (!isConfigured) return null;
+            const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+            if (sb && typeof sb.createClient === 'function') {
+                try {
+                    supabaseClient = sb.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                } catch (e) {
+                    console.error('Supabase init error:', e);
+                }
+            }
+            return supabaseClient;
+        }
+
+        // Coba inisialisasi awal
+        getSupabaseClient();
+
+        let wordsList = [];
+        let demoWords = [
+            { word: 'kreatif', count: 12 },
+            { word: 'solutif', count: 10 },
+            { word: 'humoris', count: 8 },
+            { word: 'rajin', count: 7 },
+            { word: 'ambisius', count: 6 },
+            { word: 'santai', count: 5 }
+        ];
+
+        function sanitizeWord(input) {
+            if (!input) return '';
+            return input.trim().toLowerCase().replace(/\s+/g, ' ');
+        }
+
+        function validateWord(word) {
+            if (!word) return { valid: false, message: 'isi dulu dong, jangan kosong 🫵' };
+            if (word.includes(' ')) return { valid: false, message: 'cuma satu kata, jangan pake spasi ya 😭' };
+            if (word.length > 25) return { valid: false, message: 'panjang amat, maksimal 25 karakter ya' };
+            return { valid: true };
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'p-3 rounded-xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-md text-xs text-slate-200 transition-all duration-300 transform translate-y-3 opacity-0';
+            toast.textContent = message;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.remove('translate-y-3', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-1');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function fetchWords() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const client = getSupabaseClient();
+            try {
+                if (client) {
+                    const { data, error } = await client.from('ihsan_words').select('word, count').order('count', { ascending: false });
+                    if (error) {
+                        console.error('Supabase select error:', error);
+                        throw error;
+                    }
+                    wordsList = data || [];
+                } else {
+                    wordsList = [...demoWords].sort((a, b) => b.count - a.count);
+                }
+                renderWordCloud();
+            } catch (err) {
+                console.error('fetchWords error:', err);
+                if (!wordsList || wordsList.length === 0) {
+                    wordsList = [...demoWords].sort((a, b) => b.count - a.count);
+                    renderWordCloud();
+                }
+            } finally {
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        async function submitWord(rawWord) {
+            const sanitized = sanitizeWord(rawWord);
+            const val = validateWord(sanitized);
+            if (!val.valid) {
+                showToast(val.message);
+                return;
+            }
+
+            const btn = document.getElementById('submitWordBtn');
+            btn.disabled = true;
+
+            const client = getSupabaseClient();
+            try {
+                if (client) {
+                    const { error: rpcErr } = await client.rpc('increment_ihsan_word', { word_input: sanitized });
+                    if (rpcErr) {
+                        console.warn('RPC increment gagal, mencoba upsert manual:', rpcErr);
+                        const { data: existing, error: selectErr } = await client.from('ihsan_words').select('count').eq('word', sanitized).maybeSingle();
+                        if (existing) {
+                            await client.from('ihsan_words').update({ count: existing.count + 1 }).eq('word', sanitized);
+                        } else {
+                            await client.from('ihsan_words').insert([{ word: sanitized, count: 1 }]);
+                        }
+                    }
+                    showToast(`makasih udah nambahin "${sanitized}"! 👍`);
+                    await fetchWords();
+                } else {
+                    const existing = demoWords.find(w => w.word === sanitized);
+                    if (existing) existing.count += 1;
+                    else demoWords.push({ word: sanitized, count: 1 });
+                    showToast(`(demo) berhasil nambahin "${sanitized}"! 👍`);
+                    renderWordCloud();
+                }
+                document.getElementById('wordInput').value = '';
+            } catch (err) {
+                console.error('submitWord error:', err);
+                showToast('wah gagal kirim, coba lagi ya');
+            } finally {
+                btn.disabled = false;
+                document.getElementById('wordInput').focus();
+            }
+        }
+
+        function setupRealtime() {
+            const client = getSupabaseClient();
+            if (!client) return;
+            client.channel('realtime_words')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'ihsan_words' }, () => fetchWords())
+                .subscribe();
+        }
+
+        function renderWordCloud() {
+            const canvas = document.getElementById('wordcloudCanvas');
+            const container = document.getElementById('canvasContainer');
+            const emptyOverlay = document.getElementById('emptyOverlay');
+            if (!canvas || !container) return;
+
+            if (wordsList.length === 0) {
+                emptyOverlay.classList.remove('hidden');
+                return;
+            } else {
+                emptyOverlay.classList.add('hidden');
+            }
+
+            const rect = container.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            const listData = wordsList.map(item => [item.word, item.count]);
+            const maxCount = Math.max(...wordsList.map(w => w.count), 1);
+            const minCount = Math.min(...wordsList.map(w => w.count), 1);
+            const scale = Math.min(Math.max(rect.width / 600, 0.8), 1.2);
+
+            const palette = ['#38bdf8', '#34d399', '#60a5fa', '#a78bfa', '#2dd4bf', '#f472b6', '#fbbf24', '#4ade80'];
+
+            WordCloud(canvas, {
+                list: listData,
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: '700',
+                color: (word) => palette[Math.abs(word.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0)) % palette.length],
+                backgroundColor: 'transparent',
+                weightFactor: (count) => {
+                    if (maxCount === minCount) return 32 * scale;
+                    return (18 + ((count - minCount) / (maxCount - minCount)) * 44) * scale;
+                },
+                gridSize: Math.round(8 * rect.width / 800),
+                rotateRatio: 0.2,
+                rotationSteps: 2,
+                minRotation: -Math.PI / 4,
+                maxRotation: 0,
+                shuffle: true,
+                shrinkToFit: true,
+                hover: (item, dim, event) => {
+                    const tooltip = document.getElementById('wordcloudTooltip');
+                    if (!item) {
+                        tooltip.classList.add('opacity-0');
+                        canvas.style.cursor = 'default';
+                        return;
+                    }
+                    canvas.style.cursor = 'pointer';
+                    tooltip.innerHTML = `<span class="font-bold text-white">${item[0]}</span> <span class="text-slate-400 font-mono">(${item[1]})</span>`;
+                    const cRect = container.getBoundingClientRect();
+                    
+                    tooltip.style.left = `${(event.clientX - cRect.left) + 10}px`;
+                    tooltip.style.top = `${(event.clientY - cRect.top) - 25}px`;
+                    
+                    tooltip.classList.remove('opacity-0');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            getSupabaseClient();
+
+            document.getElementById('wordForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitWord(document.getElementById('wordInput').value);
+            });
+
+            window.addEventListener('resize', () => {
+                clearTimeout(window.rtTimer);
+                window.rtTimer = setTimeout(renderWordCloud, 200);
+            });
+
+            fetchWords();
+            setupRealtime();
+        });
+    </script>
+</body>
+</html>
