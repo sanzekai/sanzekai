@@ -29,7 +29,8 @@
     </clipPath>
 
     <style>
-      /* Head & Body Idle Breathing */
+      /* <![CDATA[ */
+      /* Head and Body Idle Breathing */
       .head-group {
         transform-origin: 200px 260px;
         animation: headBob 3.5s ease-in-out infinite;
@@ -104,6 +105,7 @@
         0%, 100% { transform: translate(0, 0); opacity: 0.2; }
         50% { transform: translate(15px, 20px); opacity: 0.9; }
       }
+      /* ]]> */
     </style>
   </defs>
 
