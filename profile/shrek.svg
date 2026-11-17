@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <!-- Swamp Background Gradient -->
+    <radialGradient id="swampBg" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#3f5236" />
+      <stop offset="100%" stop-color="#1b2618" />
+    </radialGradient>
+
+    <!-- Ogre Skin Gradient -->
+    <radialGradient id="skinGrad" cx="45%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#b4d448" />
+      <stop offset="70%" stop-color="#8cb329" />
+      <stop offset="100%" stop-color="#688a18" />
+    </radialGradient>
+
+    <!-- Vest Leather Gradient -->
+    <linearGradient id="vestGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4a2e1b" />
+      <stop offset="50%" stop-color="#613d24" />
+      <stop offset="100%" stop-color="#382213" />
+    </linearGradient>
+
+    <!-- Eye Clip Path for Blinking -->
+    <clipPath id="leftEyeClip">
+      <ellipse cx="172" cy="175" rx="18" ry="13" />
+    </clipPath>
+    <clipPath id="rightEyeClip">
+      <ellipse cx="228" cy="175" rx="18" ry="13" />
+    </clipPath>
+
+    <style>
+      /* Head & Body Idle Breathing */
+      .head-group {
+        transform-origin: 200px 260px;
+        animation: headBob 3.5s ease-in-out infinite;
+      }
+      @keyframes headBob {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-5px) rotate(1deg); }
+      }
+
+      /* Left Ear Wiggle */
+      .ear-left {
+        transform-origin: 138px 158px;
+        animation: earWiggleLeft 4s ease-in-out infinite;
+      }
+      @keyframes earWiggleLeft {
+        0%, 80%, 100% { transform: rotate(0deg); }
+        85% { transform: rotate(-12deg); }
+        90% { transform: rotate(6deg); }
+        95% { transform: rotate(-6deg); }
+      }
+
+      /* Right Ear Wiggle */
+      .ear-right {
+        transform-origin: 262px 158px;
+        animation: earWiggleRight 4s ease-in-out infinite;
+      }
+      @keyframes earWiggleRight {
+        0%, 80%, 100% { transform: rotate(0deg); }
+        85% { transform: rotate(12deg); }
+        90% { transform: rotate(-6deg); }
+        95% { transform: rotate(6deg); }
+      }
+
+      /* Eyelid Blinking */
+      .eyelid {
+        animation: blink 4.5s infinite;
+      }
+      @keyframes blink {
+        0%, 92%, 100% { transform: translateY(-28px); }
+        95%, 97% { transform: translateY(0px); }
+      }
+
+      /* Eyebrow Expressive Raise */
+      .brow-left {
+        transform-origin: 172px 156px;
+        animation: browRaise 3.5s ease-in-out infinite;
+      }
+      @keyframes browRaise {
+        0%, 60%, 100% { transform: translateY(0px) rotate(0deg); }
+        70%, 85% { transform: translateY(-4px) rotate(-5deg); }
+      }
+
+      /* Swamp Fireflies */
+      .firefly-1 {
+        animation: float1 6s ease-in-out infinite;
+      }
+      .firefly-2 {
+        animation: float2 7s ease-in-out infinite;
+      }
+      .firefly-3 {
+        animation: float3 5s ease-in-out infinite;
+      }
+      @keyframes float1 {
+        0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+        50% { transform: translate(20px, -25px); opacity: 1; }
+      }
+      @keyframes float2 {
+        0%, 100% { transform: translate(0, 0); opacity: 0.8; }
+        50% { transform: translate(-25px, -15px); opacity: 0.2; }
+      }
+      @keyframes float3 {
+        0%, 100% { transform: translate(0, 0); opacity: 0.2; }
+        50% { transform: translate(15px, 20px); opacity: 0.9; }
+      }
+    </style>
+  </defs>
+
+  <!-- Background Circle -->
+  <circle cx="200" cy="200" r="190" fill="url(#swampBg)" stroke="#4f693e" stroke-width="6" />
+
+  <!-- Ambient Swamp Fireflies -->
+  <circle class="firefly-1" cx="75" cy="140" r="3.5" fill="#d9f99d" />
+  <circle class="firefly-2" cx="325" cy="110" r="4" fill="#bef264" />
+  <circle class="firefly-3" cx="310" cy="260" r="3" fill="#d9f99d" />
+
+  <!-- Shoulders & Tunic -->
+  <g id="torso">
+    <!-- Cream Tunic -->
+    <path d="M 85 352 Q 110 265 200 265 Q 290 265 315 352 A 190 190 0 0 1 85 352 Z" fill="#e8dec3" />
+    <!-- Tunic Collar V-Neck -->
+    <path d="M 165 268 L 200 315 L 235 268 Z" fill="#c7b893" />
+    <path d="M 172 268 L 200 305 L 228 268 Z" fill="#7c9c22" />
+    <!-- Collar Laces -->
+    <path d="M 188 286 L 212 294 M 212 286 L 188 294 M 192 298 L 208 304 M 208 298 L 192 304" stroke="#5c4028" stroke-width="2.5" stroke-linecap="round" />
+    
+    <!-- Brown Leather Vest -->
+    <path d="M 110 364 Q 125 270 165 267 L 182 388 A 190 190 0 0 1 110 364 Z" fill="url(#vestGrad)" />
+    <path d="M 290 364 Q 275 270 235 267 L 218 388 A 190 190 0 0 0 290 364 Z" fill="url(#vestGrad)" />
+  </g>
+
+  <!-- Animated Head Group -->
+  <g class="head-group">
+    <!-- Neck -->
+    <rect x="162" y="235" width="76" height="45" rx="15" fill="#7c9c22" />
+
+    <!-- Left Trumpet Ear -->
+    <g class="ear-left">
+      <path d="M 140 165 L 98 135 Q 92 128 100 120 Q 108 112 116 118 L 146 150 Z" fill="url(#skinGrad)" stroke="#5c7a14" stroke-width="2" />
+      <ellipse cx="104" cy="125" rx="6" ry="11" transform="rotate(-42 104 125)" fill="#4d6610" />
+    </g>
+
+    <!-- Right Trumpet Ear -->
+    <g class="ear-right">
+      <path d="M 260 165 L 302 135 Q 308 128 300 120 Q 292 112 284 118 L 254 150 Z" fill="url(#skinGrad)" stroke="#5c7a14" stroke-width="2" />
+      <ellipse cx="296" cy="125" rx="6" ry="11" transform="rotate(42 296 125)" fill="#4d6610" />
+    </g>
+
+    <!-- Main Head Shape (Broad Jaw, Rounded Dome) -->
+    <path d="M 136 165 
+             C 136 105, 264 105, 264 165 
+             C 272 195, 274 235, 245 256 
+             C 220 272, 180 272, 155 256 
+             C 126 235, 128 195, 136 165 Z" fill="url(#skinGrad)" stroke="#5c7a14" stroke-width="2.5" />
+
+    <!-- Subtle Forehead & Cheek Shading -->
+    <path d="M 168 135 Q 200 130 232 135" fill="none" stroke="#6f8f1b" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+    <path d="M 146 212 Q 140 230 156 244" fill="none" stroke="#6f8f1b" stroke-width="2.5" stroke-linecap="round" opacity="0.5" />
+    <path d="M 254 212 Q 260 230 244 244" fill="none" stroke="#6f8f1b" stroke-width="2.5" stroke-linecap="round" opacity="0.5" />
+
+    <!-- Eyebrows -->
+    <path class="brow-left" d="M 150 158 Q 172 146 190 157" fill="none" stroke="#473317" stroke-width="6.5" stroke-linecap="round" />
+    <path d="M 250 158 Q 228 148 210 158" fill="none" stroke="#473317" stroke-width="6.5" stroke-linecap="round" />
+
+    <!-- Left Eye -->
+    <g clip-path="url(#leftEyeClip)">
+      <ellipse cx="172" cy="175" rx="18" ry="13" fill="#fcfaf2" />
+      <!-- Brown Iris -->
+      <circle cx="174" cy="175" r="8" fill="#5e3a1c" />
+      <!-- Pupil -->
+      <circle cx="174" cy="175" r="4" fill="#170e06" />
+      <!-- Eye Shine -->
+      <circle cx="171" cy="172" r="2.2" fill="#ffffff" />
+      <!-- Animated Eyelid -->
+      <rect class="eyelid" x="150" y="160" width="44" height="30" fill="#7c9c22" />
+    </g>
+    <ellipse cx="172" cy="175" rx="18" ry="13" fill="none" stroke="#5c7a14" stroke-width="2" />
+
+    <!-- Right Eye -->
+    <g clip-path="url(#rightEyeClip)">
+      <ellipse cx="228" cy="175" rx="18" ry="13" fill="#fcfaf2" />
+      <!-- Brown Iris -->
+      <circle cx="226" cy="175" r="8" fill="#5e3a1c" />
+      <!-- Pupil -->
+      <circle cx="226" cy="175" r="4" fill="#170e06" />
+      <!-- Eye Shine -->
+      <circle cx="223" cy="172" r="2.2" fill="#ffffff" />
+      <!-- Animated Eyelid -->
+      <rect class="eyelid" x="206" y="160" width="44" height="30" fill="#7c9c22" />
+    </g>
+    <ellipse cx="228" cy="175" rx="18" ry="13" fill="none" stroke="#5c7a14" stroke-width="2" />
+
+    <!-- Broad Ogre Nose -->
+    <g id="nose">
+      <!-- Nose Bridge -->
+      <path d="M 192 178 Q 190 194 184 202" fill="none" stroke="#688a18" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 208 178 Q 210 194 216 202" fill="none" stroke="#688a18" stroke-width="2.5" stroke-linecap="round" />
+      <!-- Bulbous Tip & Nostrils -->
+      <path d="M 180 205 C 175 216, 190 218, 200 216 C 210 218, 225 216, 220 205" fill="#8cb329" stroke="#5c7a14" stroke-width="2.5" stroke-linecap="round" />
+      <ellipse cx="189" cy="211" rx="4.5" ry="2.8" transform="rotate(-15 189 211)" fill="#3e540b" />
+      <ellipse cx="211" cy="211" rx="4.5" ry="2.8" transform="rotate(15 211 211)" fill="#3e540b" />
+    </g>
+
+    <!-- Smirk / Grin & Chin -->
+    <g id="mouth">
+      <!-- Smile Creases -->
+      <path d="M 162 224 Q 157 232 162 238" fill="none" stroke="#5c7a14" stroke-width="2.2" stroke-linecap="round" />
+      <path d="M 238 224 Q 243 232 238 238" fill="none" stroke="#5c7a14" stroke-width="2.2" stroke-linecap="round" />
+      <!-- Confident Ogre Smirk -->
+      <path d="M 166 231 Q 202 246 235 228" fill="none" stroke="#3e540b" stroke-width="3.5" stroke-linecap="round" />
+      <!-- Lower Lip & Chin Dimple -->
+      <path d="M 186 244 Q 200 248 214 244" fill="none" stroke="#688a18" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 195 256 Q 200 259 205 256" fill="none" stroke="#688a18" stroke-width="2" stroke-linecap="round" />
+    </g>
+  </g>
+</svg>
