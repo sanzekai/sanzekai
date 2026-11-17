@@ -42,7 +42,7 @@
 ### 🛠️ Tech Stack & Tools
 
 <!-- Animasi Shrek SVG di Sisi Kanan -->
-<img align="right" width="230" src="./assets/profile/shrek.svg" alt="Animated Shrek" />
+<img align="right" width="230" src="./profile/shrek.svg" alt="Animated Shrek" />
 
 **Frontend & UI**
 
